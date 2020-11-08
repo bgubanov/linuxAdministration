@@ -1,0 +1,74 @@
+#!/bin/sh
+
+#1.
+mkdir -p ~/test # p - ignore existed
+#2.
+ls -ap /etc > ~/test/list # a - all, p - slash
+#3.
+ls -ap /etc | grep -E "/$" | wc -w >> ~/test/list
+ls -ap /etc | grep -E "^\." | wc -w >> ~/test/list
+#4.
+mkdir -p ~/test/links
+#5.
+ln -f ~/test/list ~/test/links/list_hlink # f - delete if exists
+#6.
+ln -sf ~/test/list ~/test/links/list_slink
+#7.
+ls -l ~/test/links/list_hlink | cut -d" " -f2 
+ls -l ~/test/list | cut -d" " -f2 
+ls -l ~/test/links/list_slink | cut -d" " -f2 
+#8.
+cat $(ls -d ~/test/links/*) | wc -l >> ~/test/links/list_hlink # d - absolute path
+#9.
+if cmp  ~/test/links/list_hlink ~/test/links/list_slink 2> /dev/null 1> /dev/null
+then echo "9.YES"
+fi
+#10.
+mv ~/test/list ~/test/list1
+#11.
+if cmp  ~/test/links/list_hlink ~/test/links/list_slink 2> /dev/null 1> /dev/null
+then echo "11.YES"
+fi
+#12.
+ln -f ~/test/list1 ~/list_link
+#13. 
+sudo ls -pR /etc | grep -E "\.conf$" > ~/list_conf
+#14.
+ls -p /etc | grep -E "\.d/$" > ~/list_d
+#15.
+cat ~/list_d ~/list_conf > ~/list_conf_d
+#16.
+mkdir -p ~/test/.sub
+#17.
+cp -u ~/list_conf_d ~/test/.sub/
+#18.
+cp -b ~/list_conf_d ~/test/.sub/
+#19.
+ls -aR ~/test
+#20.
+man --help > ~/man.txt
+#21.
+split -b 1K ~/man.txt ~/man.txt.
+#22.
+mkdir -p man.dir
+#23.
+mv -u ~/man.txt.* ~/man.dir/
+#24.
+cat $(ls -d ~/man.dir/man.txt.*)  > ~/man.dir/man.txt
+#25.
+if cmp  ~/man.txt ~/man.dir/man.txt 2> /dev/null 1> /dev/null
+then echo "25.YES"
+fi
+#26.
+sed -i '1s/^/AAAAAAAAAAAAAA\nAAAAAA\n/' ~/man.txt # i - in place
+#27.
+diff -u  ~/man.txt ~/man.dir/man.txt > ~/man.diff
+#28.
+mv ~/man.diff ~/man.dir/
+#29.
+patch < ~/man.dir/man.diff > /dev/null
+#30.
+if cmp  ~/man.txt ~/man.dir/man.txt 2> /dev/null 1> /dev/null
+then echo "30.YES"
+fi
+
