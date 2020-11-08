@@ -1,0 +1,99 @@
+#!/bin/bash
+
+
+#1.
+fdisk /dev/sda <<EOF
+n
+p
+3
+""
++300M
+w
+EOF
+
+#2.
+blkid /dev/sda3 | grep -oP UUID=”(.*)” > disk.uuid
+
+#3.
+mkfs.ext4 -b 4096 /dev/sda3
+
+#4.
+tune2fs -l /dev/sda3 
+
+#5.
+tune2fs -c 2 -i 2m /dev/sda3
+
+#6.
+mkdir /mnt/newdisk
+mount -t ext4 /dev/sda3 /mnt/newdisk
+
+#7.
+ln -s /mnt/newdisk sda3
+
+#8.
+mkdir sda3/test
+
+#9.
+echo /dev/sda3	/mnt/newdisk	ext4	noexec,noatime	0 0 >> /etc/fstab
+
+#10.
+fdisk /dev/sda <<EOF
+d
+3
+n
+primary
+3
+""
++350M
+w
+EOF
+resize2fs /dev/sda3
+
+#11.
+e2fsck -fn /dev/sda3
+
+#11,5. Extended partition
+fdisk /dev/sda <<EOF
+n
+e
+4
+""
+""
+w
+EOF
+
+#12.
+fdisk /dev/sda <<EOF
+n
+""
++12M
+w
+EOF
+mke2fs -b 4096 -O journal_dev /dev/sda5
+tune2fs -O ^has_journal /dev/sda3
+tune2fs -o journal_data -j -J device=/dev/sda5 /dev/sda3
+
+#13.
+fdisk /dev/sda <<EOF
+n
+""
++100M
+n
+""
++100M
+w
+EOF
+
+#14.
+vgcreate LVMlab2 /dev/sda6 /dev/sda7
+lvcreate -L 150M -n LVMlab2Volume LVMlab2
+mkfs.ext4 -b 4096 /dev/LVMlab2/LVMlab2Volume
+mkdir /mnt/supernewdisk
+mount /dev/LVMlab2/LVMlab2Volume /mnt/supernewdisk
+
+#15.
+mount -t cifs -o vers=1.0 //192.168.0.126/Users/bgubanov/Desktop/tp
+root
+
+#16.
+echo //192.168.0.126/Users/bgubanov/Desktop/tp /mnt/share cifs user=root,pass=root,vers=1.0 0 0 >> /etc/fstab
