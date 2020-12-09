@@ -92,8 +92,7 @@ mkdir /mnt/supernewdisk
 mount /dev/LVMlab2/LVMlab2Volume /mnt/supernewdisk
 
 #15.
-mount -t cifs -o vers=1.0 //192.168.0.126/Users/bgubanov/Desktop/tp
-root
+mount -t cifs -o vers=1.0 //192.168.0.126/Users/bgubanov/Desktop/tp root
 
 #16.
 echo //192.168.0.126/Users/bgubanov/Desktop/tp /mnt/share cifs user=root,pass=root,vers=1.0 0 0 >> /etc/fstab
